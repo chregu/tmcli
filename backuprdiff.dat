@@ -1,0 +1,51 @@
+- /Users/chregu/bittorrent/
+- /Users/chregu/games/
+- /Users/chregu/.m2
+- /Users/chregu/.ccache
+- /Users/chregu/.cpan
+- /Users/chregu/.maven
+- /Users/chregu/.Trash/**
+- /Users/chregu/.jedit/cache/**
+- /Users/chregu/Downloads/*.dmg
+- /Users/chregu/Downloads/*gz
+- /Users/chregu/Downloads/*zip
+- /Users/chregu/Downloads/*download
+- .Trash/
+- .ccache/
+- **.iso
+- **.Minis
+- **.Thumbnails
+- **.Tinies
+- Previews/**
+- Thumbnails/**
+- dynimages/**
+- clients/*/tmp/**
+- /Users/chregu/svn.old/
+- /Users/chregu/Documents/EyeTV\ Archive/**
+- /Users/chregu/Music/iTunes/iTunes\ Music/Podcasts/**
+- /Users/chregu/Music/iTunes/iTunes\ Music/Movies/**
+- /Users/chregu/Movies/**
+- /Users/chregu/Pictures/Apperture\ Rejected/**
+- /Users/chregu/Pictures/Aperture\ Masters\ No\ Backup
+- /Users/chregu/Library/Mozilla/Profiles/Chregu/ustoq71w.slt/Cache/**
+- /Users/chregu/Documents/QEMU/
+- Library/Caches/
+- Safari/Icons/
+- /Users/chregu/Library/Parallels
+- /Users/chregu/Library/Application\ Support/Skype/christian.stocker
+- /usr/local/mysql-5.0.45-osx10.4-i686/data/epglocal/**
+- /opt/svn/local**
+- /opt/svn/sling/**
+- /opt/svn/liip.ch/**
+- /opt/svn/apache/**
+- /opt/svn/jackrabbit/**
+- /opt/svn/epg/**
+- /.Spotlight-V100
+- /.fseventsd
+- /Volumes/**
+- /net
+- /private/var/vm/**
+- /private/var/tmp/**
+- /private/var/log/**
+- /tmp
+
