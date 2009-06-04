@@ -1,5 +1,6 @@
 <?php
 $outdir = "/Volumes/backup/pr_backup.bk/test/";
+$dryrun = "";
 $lastid = (int) file_get_contents("$outdir/lastid.dat");
 if (!$lastid) {
     $lastid = 1;
@@ -44,6 +45,9 @@ $rdiffdat .= "- /**\n";
 
 file_put_contents("$outdir/lastid.dat",$lastid);
 print $lastid."\n";
-file_put_contents("./rdiff.dat",file_get_contents("./backuprdiff.dat").$rdiffdat);
 
-passthru("rsync  --out-format='%i %n%L' -x --human-readable -H -a  --delete --partial   --stats  --include-from=./rdiff.dat / $outdir");
+passthru("rsync $dryrun --out-format='%i %n%L' -x --human-readable -H -a  --delete --partial   --stats  --include-from=./rdiff.dat / $outdir");
+if (!$dryrun) {
+
+file_put_contents("./rdiff.dat",file_get_contents("./backuprdiff.dat").$rdiffdat);
+}

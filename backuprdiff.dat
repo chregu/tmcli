@@ -20,6 +20,7 @@
 - Thumbnails/**
 - dynimages/**
 - clients/*/tmp/**
+- com.apple.Safari/Cache.db
 - /Users/chregu/svn.old/
 - /Users/chregu/Documents/EyeTV\ Archive/**
 - /Users/chregu/Music/iTunes/iTunes\ Music/Podcasts/**
