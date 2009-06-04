@@ -1,7 +1,11 @@
 <?php
 $outdir = "/Volumes/backup/pr_backup.bk/test/";
-$lastid = file_get_contents("./lastid.dat");
-
+$lastid = (int) file_get_contents("$outdir/lastid.dat");
+if (!$lastid) {
+    $lastid = 1;
+}
+  
+    
 $out = `./fse 1 $lastid`;
 
 $events = explode("\n",trim($out));
@@ -20,7 +24,12 @@ foreach($events as $e) {
 ksort($dirs);
 $rdiffdat = "";
 foreach($dirs as $d => $q) {
+    
+    
     $ds = explode("/",trim($d,"/"));
+    if ($ds[0] == 'Volumes') {
+        continue;
+    }
     $path = "/";
     foreach ($ds as $p) {
         $path .= $p ."/";
@@ -33,7 +42,7 @@ foreach($dirs as $d => $q) {
 
 $rdiffdat .= "- /**\n";
 
-file_put_contents("./lastid.dat",$lastid);
+file_put_contents("$outdir/lastid.dat",$lastid);
 print $lastid."\n";
 file_put_contents("./rdiff.dat",file_get_contents("./backuprdiff.dat").$rdiffdat);
 

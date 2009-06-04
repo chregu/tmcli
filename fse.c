@@ -17,7 +17,7 @@ void myCallbackFunction(
     for (i=0; i<numEvents; i++) {
         int count;
         /* flags are unsigned long, IDs are uint64_t */
-        printf("Change %llu in %s, flags %lu\n", eventIds[i], paths[i], eventFlags[i]);
+        printf("%llu:%s:%lu\n", eventIds[i], paths[i], eventFlags[i]);
    }
 }
 
@@ -38,7 +38,7 @@ main(int argc, char *argv[])
         &myCallbackFunction,
         callbackInfo,
         pathsToWatch,
-        atoi(argv[1]), /* Or a previous event ID */
+        atoi(argv[2]), /* Or a previous event ID */
         latency,
         kFSEventStreamCreateFlagNone /* Flags explained in reference */
 );
@@ -46,7 +46,8 @@ main(int argc, char *argv[])
     /* Create the stream before calling this. */
     FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(),         kCFRunLoopDefaultMode);
 	FSEventStreamStart(stream);
-	CFRunLoopRun();
-
+	//CFRunLoopRun();
+	CFRunLoopRunInMode(kCFRunLoopDefaultMode,atoi(argv[1]),false);
+	//sleep(10);
 }
 
