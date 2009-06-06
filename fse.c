@@ -17,7 +17,7 @@ void myCallbackFunction(
     for (i=0; i<numEvents; i++) {
         int count;
         /* flags are unsigned long, IDs are uint64_t */
-        printf("%llu:%s:%lu\n", eventIds[i], paths[i], eventFlags[i]);
+        printf("%llu:%lu:%s\n", eventIds[i], eventFlags[i], paths[i]);
    }
 }
 

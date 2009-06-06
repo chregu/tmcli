@@ -73,6 +73,7 @@
 - **.Minis
 - **.Thumbnails
 - **.Tinies
+- *.mozmsgs/
 - Previews/**
 - Thumbnails/**
 - dynimages/**
@@ -87,6 +88,7 @@
 - /Users/chregu/Pictures/Aperture\ Masters\ No\ Backup
 - /Users/chregu/Library/Mozilla/Profiles/Chregu/ustoq71w.slt/Cache/**
 - /Users/chregu/Documents/QEMU/
+- CrashReporter/
 - -Caches-/
 - Safari/Icons/
 - /Users/chregu/Library/Parallels

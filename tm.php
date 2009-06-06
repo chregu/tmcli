@@ -1,11 +1,9 @@
 <?php
-$outdir = "/Volumes/backup/pr_backup.bk/test/";
-$maxdir = 4;
-$dryrun = "";
+include_once("settings.php");
+
 $lastid = (int) file_get_contents("$outdir/lastid.dat");
+$oldbkdir = file_get_contents("$outdir/lastdir.dat");
 $orilastid = $lastid;
-//make sure we have changed something
-touch ("./rdiff.dat");
 if (!$lastid) {
     $lastid = 1;
 }
@@ -13,7 +11,7 @@ if (!$lastid) {
 $dirs = array();
 $newlastid = null;
 $rdirs = array();
-
+$rdirs2 = array();
 //excluded by apple
 $out =  `mdfind "com_apple_backup_excludeItem = 'com.apple.backupd'"`;
 $apple = explode("\n",trim($out));
@@ -27,23 +25,26 @@ foreach ($apple as $a) {
 }
 
 while (!$newlastid) {
+    print $lastid ."\n";
  //   print "la ". $lastid ."\n";
     $out = `./fse 1 $lastid`;
-    
     $events = explode("\n",trim($out));
     
     foreach($events as $e) {
-        $es = explode(":",trim($e)); 
-        if ($es[2] == 0) {
-       //     $lastid = $es[0];
-            $dirs[$es[1]] = 0;
+     
+        $es = explode(":",trim($e),3);
+      
+        if ($es[1] == 0) {
+            $lastid = $es[0];
+            $dirs[$es[2]] = 0;
+              if (substr($es[2],0,9) == "/Volumes/") {
+            continue;
+        }
+        } else if ($es[1] & 1) {
+            $dirs[$es[2]] = $es[1];
             
-        } else if ($es[2] & 1) {
-            $dirs[$es[1]] = $es[2];
-            
-        } else if ($es[2] == 16) {
+        } else if ($es[1] == 16) {
            
-
             $newlastid = $es[0];
             // if fsevent reports the same id as initially asked for, there may something be wrong and we should start from the beginning
              if ($orilastid == $newlastid) {
@@ -51,7 +52,8 @@ while (!$newlastid) {
                 $newlastid = null;
              }
         }
-    }       
+    }     
+    
     
 }
 
@@ -71,9 +73,14 @@ foreach($dirs as $d => $q) {
         $path .= $p ."/";
         if (!isset($rdirs[$path]) || (isset($rdirs[$path."*/"]) && $rdirs[$path ."*/"] === false)) {
             $rdirs[$path] = true;
-            if (isset($rdirs[$path."*/"])) {
+            if (isset($rdirs[$path."*/"]) && $rdirs[$path ."*/"] === false) {
                 unset($rdirs[$path ."*/"]);
+              
             }
+             $rdirs2[$path."*"] = true;
+             $rdirs2 = array_merge(array($path."*/" => false),$rdirs2);
+            
+            
         }
         if ($k > $maxdir) { break;}
     }
@@ -85,9 +92,8 @@ foreach($dirs as $d => $q) {
         }
     } else {
         if (!isset($rdirs["$path*/"])) {
-            
-            $rdirs["$path*/"] = false;
-            $rdirs["$path*"] = true;
+     //       $rdirs["$path*/"] = false;
+       //     $rdirs["$path*"] = true;
         }
     }
 }
@@ -103,15 +109,33 @@ foreach ($rdirs as $k => $v) {
     }
     $rdiffdat .="$k\n";
 }
+$rdiffdat .="#####\n";
+array_reverse($rdirs2);
+foreach ($rdirs2 as $k => $v) {
+    if ($v) {
+        $rdiffdat .="+ ";
+    } else {
+        $rdiffdat .="- ";
+    }
+    $rdiffdat .="$k\n";
+}
 
 
 $rdiffdat .= "- /**\n";
 
 file_put_contents("./rdiff.dat",file_get_contents("./backuprdiff.dat").$rdiffdat);
-passthru("rsync $dryrun --out-format='%i %n%L' -x --human-readable -H -a  --link-dest=../pr_backup.1.full --delete --partial   --stats  --include-from=./rdiff.dat / $outdir");
+$linkdir = "../".basename($oldbkdir);
+
+passthru("rsync $dryrun --out-format='%i %n%L' -x --human-readable -H -A -X -E -a  --link-dest=$linkdir --delete   --stats  --include-from=./rdiff.dat / $bkdir".".inProgress");
 if (!$dryrun) {
     print $lastid ."\n";
     file_put_contents("$outdir/lastid.dat",$lastid);
-    
-    
+    $bkdir2 = $bkdir;
+    $bkdir = realpath($bkdir.".inProgress");
+    print "Create Links...   \n";
+    include("mklinks.php");
+    rename($bkdir,$bkdir2);
+    file_put_contents("$outdir/lastdir.dat",$bkdir2);
 }
+
+

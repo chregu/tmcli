@@ -1,0 +1,1 @@
+gcc -o fse fse.c -framework CoreServices
