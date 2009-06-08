@@ -3,8 +3,13 @@
 include_once("settings.php");
 
 $bkdir = $outdir.$bkdir.".inProgress";
+if (!isset($argv[1])) {
+    die("please specify the directory to delete\n");
+}
+    
+$bkdir = $argv[1];
 
-$bkdir = "/Volumes/backup/pr_backup.bk/2009-06-07-211510";
+
 
 parseDir($bkdir."/");
 DELETE_RECURSIVE_DIRS($bkdir);
@@ -16,13 +21,15 @@ function parseDir($dir,$level = 0) {
         }
         if ($fileInfo->isDir()) {
             $oripath = $dir.$fileInfo->getFilename();
-            
+            if ($level < 2) {
+                print $oripath."\n";
+            }
             @unlink($oripath);
             if (file_exists($oripath)) {
             if ($level < $maxdir + 2) {
                 parseDir($oripath."/",$level+  1);
             } else {
-                print $oripath ." UNLINKED\n";
+               // print $oripath ." UNLINKED\n";
             }
             }
             
@@ -33,19 +40,22 @@ function parseDir($dir,$level = 0) {
 }
 
 
-function DELETE_RECURSIVE_DIRS($dirname)
+function DELETE_RECURSIVE_DIRS($dirname,$level = 0)
 { // recursive function to delete 
     // all subdirectories and contents:
     if(is_dir($dirname))$dir_handle=opendir($dirname);
-    while($file=readdir($dir_handle))
+    while(false !== $file=readdir($dir_handle))
     {
         if($file!="." && $file!="..")
         {
-            if(!is_dir($dirname."/".$file)) {
+            if(!is_dir($dirname."/".$file) || is_link($dirname."/".$file)) {
                 unlink ($dirname."/".$file);
             }
             else {
-                DELETE_RECURSIVE_DIRS($dirname."/".$file);
+              if ($level < 2) {
+                print $dirname."/".$file."\n";
+              }
+                DELETE_RECURSIVE_DIRS($dirname."/".$file,$level + 1);
             }
         }
     }
