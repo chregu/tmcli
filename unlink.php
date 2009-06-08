@@ -2,9 +2,10 @@
 
 include_once("settings.php");
 
-$bkdir = $bkdir.".inProgress";
+$bkdir = $outdir.$bkdir.".inProgress";
 
-$bkdir = "/Volumes/backup/pr_backup.bk/pr_backup.hard";
+$bkdir = "/Volumes/backup/pr_backup.bk/2009-06-07-211510";
+
 parseDir($bkdir."/");
 DELETE_RECURSIVE_DIRS($bkdir);
 function parseDir($dir,$level = 0) {

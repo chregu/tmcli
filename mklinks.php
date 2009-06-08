@@ -3,8 +3,8 @@
 include_once("settings.php");
 
 //$oldbkdir = '/Volumes/backup/pr_backup.bk/pr_backup.0.full';
-
-parseDir('/',$bkdir,$oldbkdir);
+$oldbkdir2 = $outdir.$oldbkdir;
+parseDir('/',$bkdir,$oldbkdir2);
 
 function parseDir($dir,$bkdir,$lastbkdir,$level = 0) {
     global $maxdir;
@@ -22,7 +22,10 @@ function parseDir($dir,$bkdir,$lastbkdir,$level = 0) {
                 }
             } else {
                 if (!link($lastbkdir.$oripath, $bkdir.$oripath)) {
-                print $lastbkdir.$oripath ." => ". $bkdir.$oripath ."\n";
+             //    print "NOT " . $lastbkdir.$oripath ." => ". $bkdir.$oripath ."\n";
+                } else {
+                    
+               //  print "YES " . $lastbkdir.$oripath ." => ". $bkdir.$oripath ."\n";
                 }
             }
             
