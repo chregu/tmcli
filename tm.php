@@ -1,7 +1,13 @@
 <?php
 
+
+
 passthru('sudo -u chregu hdiutil attach -noautofsck -noverify /Volumes/My\ Book\ II/backup.sparsebundle');
-$logg = false;
+if (isset($argv[1]) && $argv[1] == 'cron') {
+    $logg = true;
+} else {
+    $logg = false;
+}
 $full = false;
 include_once ("settings.php");
 include_once ("tmcli.php");
@@ -9,6 +15,9 @@ include_once ("tmcli.php");
 
 
 $tm = new tmcli($outdir);
+if (!$tm->lock()) {
+    die("backup locked");
+}
 
 $tm->dryrun = $dryrun;
 $tm->logg = $logg;

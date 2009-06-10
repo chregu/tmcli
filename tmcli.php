@@ -7,12 +7,31 @@ class tmcli {
     public $maxdir = 4;
     public $dryrun = "";
     public $logg = false;
-
+    protected $lockfile = null;
     protected $lastDir = null;
 
     function __construct($bkrootdir) {
         $this->bkrootdir = $bkrootdir;
         $this->bkdir = $bkrootdir . "/" . date("Y-m-d-His") . ".inProgress";
+        $this->lockfile = $this->bkrootdir."/lock.dat";
+    }
+
+    function __destruct() {
+
+    }
+
+    public function lock() {
+
+        if (file_exists($this->lockfile)) {
+            return false;
+        } else {
+            file_put_contents($this->lockfile,time());
+            return true;
+        }
+    }
+
+    public function unlock() {
+        unlink($this->lockfile);
     }
 
     public function getLastUUID() {
@@ -96,6 +115,7 @@ class tmcli {
 
             print $foo;
         }
+         $this->unlock();
     }
 
 }
