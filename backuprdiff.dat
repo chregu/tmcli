@@ -1,6 +1,7 @@
 - /Volumes
 - /Network
 - /automount
+- /dev
 - /.vol
 - /tmp
 - /cores
@@ -38,7 +39,6 @@
 - /Previous Systems
 - /Users/Shared/SC Info
 - /Users/Guest
-- /dev
 - /home
 - /net
 - /private/var/db/Spotlight
