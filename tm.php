@@ -1,8 +1,5 @@
 <?php
 
-
-
-passthru('sudo -u chregu hdiutil attach -noautofsck -noverify /Volumes/My\ Book\ II/backup.sparsebundle');
 if (isset($argv[1]) && $argv[1] == 'cron') {
     $logg = true;
 } else {
@@ -12,7 +9,15 @@ $full = false;
 include_once ("settings.php");
 include_once ("tmcli.php");
 
-
+if (file_exists($outdir)) {
+    print "$outdir already mounted\n";
+} else if (file_exists("/Volumes/My\ Book\ II/backup.sparsebundle")) {
+    passthru('sudo -u chregu hdiutil attach -noautofsck -noverify /Volumes/My\ Book\ II/backup.sparsebundle');
+} else if (file_exists("/Volumes/share/backupe.sparsebundle")) {
+    passthru('sudo -u chregu hdiutil attach -noautofsck -noverify  /Volumes/share/backupe.sparsebundle ');
+} else {
+    die("no backup destination found");
+}
 
 $tm = new tmcli($outdir);
 if (!$tm->lock()) {
@@ -74,8 +79,8 @@ while (!$newlastid) {
 
                 $devuuid = $es[0];
                 if ($lastuuid != $devuuid) {
-                    print $lastuuid."\n";
-                    print $devuuid."\n";
+                    print $lastuuid . "\n";
+                    print $devuuid . "\n";
                     $full = true;
                     break;
                 }
@@ -131,6 +136,7 @@ foreach ($dirs as $d => $q) {
 
 $rdiffdat = "";
 if ($full) {
+    print "doing a full backup \n";
     $rdiffdat .= "+ /**\n";
 
 } else {
@@ -178,8 +184,5 @@ if (!$dryrun) {
 
     $tm->writeLastDir();
 }
-
-
-
 
 $tm->cleanUp();

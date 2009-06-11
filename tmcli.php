@@ -11,24 +11,33 @@ class tmcli {
     protected $lastDir = null;
 
     function __construct($bkrootdir) {
+
+        if (!file_exists($bkrootdir) || !is_dir($bkrootdir)) {
+            throw new Exception($bkrootdir . " does not exist or is not a directory");
+        }
         $this->bkrootdir = $bkrootdir;
+
         $this->bkdir = $bkrootdir . "/" . date("Y-m-d-His") . ".inProgress";
-        $this->lockfile = $this->bkrootdir."/lock.dat";
+        $this->lockfile = $this->bkrootdir."/inProgress.dat";
     }
 
     function __destruct() {
 
     }
 
+
+
     public function lock() {
 
         if (file_exists($this->lockfile)) {
             return false;
         } else {
-            file_put_contents($this->lockfile,time());
+            file_put_contents($this->lockfile,getmypid().":".$this->getInProgressBkDir());
             return true;
         }
     }
+
+
 
     public function unlock() {
         unlink($this->lockfile);
@@ -86,8 +95,28 @@ class tmcli {
         return $rdirs;
     }
 
+    /**
+     * Always gets the bkdir name with .inProgress at the end.
+     *
+     * @return string
+     */
+    protected function getInProgressBkDir() {
+        //of course, you can do that much better efficient, but this should work anyway
+        return $this->getFinalBkDir().".inProgress";
+    }
+
+    /**
+     * Always gets the final bkdir name (without .inProgress)
+     *
+     * @return string
+     */
+    protected function getFinalBkDir() {
+        return  preg_replace("#.inProgress$#", "", $this->bkdir);
+    }
+
+
     public function moveBkDir() {
-        $bkdir2 = preg_replace("#.inProgress$#", "", $this->bkdir);
+        $bkdir2 = $this->getFinalBkDir();
         rename($this->bkdir, $bkdir2);
         $this->bkdir = $bkdir2;
 
@@ -95,7 +124,7 @@ class tmcli {
 
     public function runRsync() {
         $linkdir = "../" . $this->getLastDir();
-        $cmd = "rsync " . $this->dryrun . " --out-format='%i %n%L' -x --human-readable -H -A -X -E -a  --link-dest=$linkdir --delete   --stats  --include-from=./rdiff.dat / " . $this->bkdir;
+        $cmd = "/opt/local/bin/rsync " . $this->dryrun . " --out-format='%i %n%L' -x --human-readable -H -A -X -E -a  --link-dest=$linkdir --delete   --stats  --include-from=./rdiff.dat / " . $this->bkdir;
         print "Backing up ...\n";
         if ($this->logg) {
             ob_start();
