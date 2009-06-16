@@ -15,29 +15,37 @@ class tmcli {
         if (!file_exists($bkrootdir) || !is_dir($bkrootdir)) {
             throw new Exception($bkrootdir . " does not exist or is not a directory");
         }
+
+        if (posix_geteuid() !== 0) {
+            //throw new Exception("You should be root to make useful backups");
+        }
         $this->bkrootdir = $bkrootdir;
 
         $this->bkdir = $bkrootdir . "/" . date("Y-m-d-His") . ".inProgress";
-        $this->lockfile = $this->bkrootdir."/inProgress.dat";
+        $this->lockfile = $this->bkrootdir . "/inProgress.dat";
     }
 
     function __destruct() {
 
     }
 
-
-
     public function lock() {
 
         if (file_exists($this->lockfile)) {
-            return false;
-        } else {
-            file_put_contents($this->lockfile,getmypid().":".$this->getInProgressBkDir());
-            return true;
+            list($pid,$dir) = explode(":",file_get_contents($this->lockfile),2);
+
+            //check if process exists
+            if (posix_kill($pid,0)) {
+                  return false;
+            }
         }
+        $this->writeLockFile();
+        return true;
     }
 
-
+    protected function writeLockFile() {
+        file_put_contents($this->lockfile, getmypid() . ":" . $this->getInProgressBkDir());
+    }
 
     public function unlock() {
         unlink($this->lockfile);
@@ -45,7 +53,7 @@ class tmcli {
 
     public function getLastUUID() {
         //TODO read from $this->bkdir
-       return  file_get_contents($this->bkrootdir . "/uuid.dat");
+        return file_get_contents($this->bkrootdir . "/uuid.dat");
 
     }
 
@@ -55,7 +63,7 @@ class tmcli {
     }
 
     public function getLastId() {
-          //TODO read from $this->bkdir
+        //TODO read from $this->bkdir
         if (file_exists($this->bkrootdir . "/lastid.dat")) {
             return (int) file_get_contents($this->bkrootdir . "/lastid.dat");
         } else {
@@ -102,7 +110,7 @@ class tmcli {
      */
     protected function getInProgressBkDir() {
         //of course, you can do that much better efficient, but this should work anyway
-        return $this->getFinalBkDir().".inProgress";
+        return $this->getFinalBkDir() . ".inProgress";
     }
 
     /**
@@ -111,9 +119,8 @@ class tmcli {
      * @return string
      */
     protected function getFinalBkDir() {
-        return  preg_replace("#.inProgress$#", "", $this->bkdir);
+        return preg_replace("#.inProgress$#", "", $this->bkdir);
     }
-
 
     public function moveBkDir() {
         $bkdir2 = $this->getFinalBkDir();
@@ -124,16 +131,21 @@ class tmcli {
 
     public function runRsync() {
         $linkdir = "../" . $this->getLastDir();
-        $cmd = "/opt/local/bin/rsync " . $this->dryrun . " --out-format='%i %n%L' -x --human-readable -H -A -X -E -a  --link-dest=$linkdir --delete   --stats  --include-from=./rdiff.dat / " . $this->bkdir;
         print "Backing up ...\n";
         if ($this->logg) {
             ob_start();
 
         }
+        $cmd = $this->getRsyncCommand($this->bkdir, $this->dryrun . " --link-dest=" . $linkdir . " ");
         print $cmd . "\n";
 
         passthru($cmd);
 
+    }
+
+    protected function getRsyncCommand($bkdir, $additionalOptions = '') {
+        $cmd = "nice /opt/local/bin/rsync $additionalOptions --out-format='%i %n%L' -x --human-readable -H -A -X -E -a  --delete   --stats  --include-from=./rdiff.dat / " . $bkdir;
+        return $cmd;
     }
 
     public function cleanUp() {
@@ -144,7 +156,72 @@ class tmcli {
 
             print $foo;
         }
-         $this->unlock();
+        $this->unlock();
+    }
+
+    public function getModifiedDirs() {
+        //FIXME: too much spaghetti code, maybe do a new class
+        $newlastid = null;
+        $lastid = $this->getLastId();
+        $lastuuid = $this->getLastUUID();
+        $orilastid = $lastid;
+        $mode = 0;
+        $dirs = array();
+
+        while (!$newlastid) {
+            print $lastid . "\n";
+            //   print "la ". $lastid ."\n";
+            $out = `./fse 1 $lastid`;
+            $events = explode("\n", trim($out));
+
+            foreach ($events as $e) {
+
+                $e = trim($e);
+                if ($e) {
+                    $es = explode(":", $e, 3);
+                    if (isset($es[2])) {
+                        $es[2] = "/" . $es[2];
+                    }
+                    if ($es[1] == 0) {
+                        $lastid = $es[0];
+                        $dirs[$es[2]] = 0;
+                        if (substr($es[2], 0, 9) == "/Volumes/") {
+                            continue;
+                        }
+                    } else if ($es[1] & 1) {
+                        $dirs[$es[2]] = $es[1];
+
+                    } else if ($es[1] == 16) {
+
+                        $newlastid = $es[0];
+                        // if fsevent reports the same id as initially asked for, there may something be wrong and we should start from the beginning
+                        if ($orilastid == $newlastid) {
+                            $lastid = 1;
+                            $newlastid = null;
+                        }
+                    } else if ($es[1] == 256) {
+
+                        $devuuid = $es[0];
+                        if ($lastuuid != $devuuid) {
+                            print $lastuuid . "\n";
+                            print $devuuid . "\n";
+                            $mode = 1;
+                            $lastid = 1;
+                            continue;
+                        }
+
+                    }
+                }
+            }
+
+        }
+        return array(
+                'dirs' => $dirs,
+                'newlastid' => $newlastid,
+                'devuuid' => $devuuid,
+                'mode' => $mode
+        );
+
     }
 
 }
