@@ -44,9 +44,8 @@ $modifieds = $tm->getModifiedDirs();
 
 $dirs = $modifieds['dirs'];
 $lastid =  $modifieds['newlastid'];
-$mode =  $modifieds['mode'];
+$mode =  $mode | $modifieds['mode'];
 $devuuid = $modifieds['devuuid'];
-
 
 print $lastid ."\n";
 ksort($dirs);
@@ -92,6 +91,7 @@ foreach ($dirs as $d => $q) {
 }
 
 $rdiffdat = "";
+print "mode : " .$mode ."\n";
 if ($mode > 0) {
     print "doing a full backup \n";
     $rdiffdat .= "+ /**\n";

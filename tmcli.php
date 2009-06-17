@@ -30,12 +30,11 @@ class tmcli {
     }
 
     public function lock() {
-
-        if (file_exists($this->lockfile)) {
-            list($pid,$dir) = explode(":",file_get_contents($this->lockfile),2);
+        $data = $this->getCurrentInProgressData();
+        if ($data) {
 
             //check if process exists
-            if (posix_kill($pid,0)) {
+            if (posix_kill($data['pid'],0)) {
                   return false;
             }
         }
@@ -43,8 +42,18 @@ class tmcli {
         return true;
     }
 
+    public function getCurrentInProgressData() {
+         if (file_exists($this->lockfile)) {
+            list($pid,$dir) = explode(":",trim(file_get_contents($this->lockfile)),2);
+            return array("pid" => $pid,"dir" => $dir);
+         } else {
+             return null;
+         }
+    }
+
+
     protected function writeLockFile() {
-        file_put_contents($this->lockfile, getmypid() . ":" . $this->getInProgressBkDir());
+        file_put_contents($this->lockfile, getmypid() . ":" . basename($this->getInProgressBkDir()));
     }
 
     public function unlock() {
