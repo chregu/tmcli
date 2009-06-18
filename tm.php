@@ -130,11 +130,9 @@ if (!$dryrun) {
     $tm->setLastId($lastid);
     $tm->setLastUUID($devuuid);
 
-    $bkdir2 = $bkdir;
-    $bkdir = realpath($bkdir . ".inProgress");
     if (!$mode ) {
         print "Create Links...   \n";
-        include ("mklinks.php");
+        $tm->makeLinks();
     }
 
     $tm->moveBkDir();

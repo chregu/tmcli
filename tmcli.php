@@ -233,4 +233,52 @@ class tmcli {
 
     }
 
+    public function makeLinks() {
+        $this->makeLinksInDir('/', $this->bkdir, $this->bkrootdir.  $this->getLastDir());
+    }
+
+    protected function makeLinksInDir($dir, $bkdir, $lastbkdir, $level = 0) {
+
+        if (file_exists($dir) && is_dir($dir)) {
+        foreach (new DirectoryIterator($dir) as $fileInfo) {
+            if ($fileInfo->isDot()) {
+                continue;
+            }
+
+            if ($fileInfo->isDir()) {
+                $oripath = $dir . $fileInfo->getFilename();
+                $bkpath = $bkdir . $oripath;
+                if ($oripath == '/net' ||
+                    $oripath == '/Network' ||
+                    $oripath == '/Volumes' ||
+                    $oripath == '/automount'
+                ) {
+                    continue;
+                }
+          //      print $bkpath ."\n";
+                if (file_exists($bkpath)) {
+                   // print $bkpath . " exists\n";
+                    if ($level < $this->maxdir + 2) {
+                    //      print " parseDir " . $oripath . "/" . $bkdir ."\n";
+                        $this->makeLinksInDir($oripath . "/", $bkdir, $lastbkdir, $level + 1);
+                    }
+                } else {
+                    if (!@link($lastbkdir . $oripath, $bkpath)) {
+                        //FIXME
+                        // if file can not be found, but exists on $oripath, then it maybe was moved and not gotten by fse
+                            print "NOT " . $lastbkdir.$oripath ." => ". $bkdir.$oripath ."\n";
+                    } else {
+
+                 //           print "YES " . $lastbkdir.$oripath ." => ". $bkpath ."\n";
+                    }
+                }
+
+            }
+
+        }
+    }
+
+}
+
+
 }
