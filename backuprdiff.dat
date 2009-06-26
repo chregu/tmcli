@@ -67,6 +67,7 @@
 - /Users/chregu/Downloads/*gz
 - /Users/chregu/Downloads/*zip
 - /Users/chregu/Downloads/*download
+- /Users/chregu/Documents/OmniFocus\ Backups/**
 - .Trash/
 - .ccache/
 - **.iso
@@ -85,7 +86,7 @@
 - /Users/chregu/Music/iTunes/iTunes\ Music/Movies/**
 - /Users/chregu/Movies/**
 - /Users/chregu/Pictures/Apperture\ Rejected/**
-- /Users/chregu/Pictures/Aperture\ Masters\ No\ Backup
+- /Users/chregu/Pictures/Aperture\ Masters\ No\ Backup/**
 - /Users/chregu/Library/Mozilla/Profiles/Chregu/ustoq71w.slt/Cache/**
 - /Users/chregu/Documents/QEMU/
 - CrashReporter/
@@ -94,6 +95,7 @@
 - /Users/chregu/Library/Parallels
 - /usr/local/mysql-5.0.45-osx10.4-i686/data/epglocal/**
 - /opt/svn/local**
+- /opt/local/var/macports/build/**
 - /opt/svn/sling/**
 - /opt/svn/liip.ch/**
 - /opt/svn/apache/**

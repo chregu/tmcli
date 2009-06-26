@@ -11,7 +11,7 @@ include_once ("tmcli.php");
 if (file_exists($outdir)) {
     print "$outdir already mounted\n";
 } else if (file_exists("/Volumes/My Book II/backup.sparsebundle")) {
-    passthru('sudo -u chregu hdiutil attach -noautofsck -noverify /Volumes/My\ Book\ II/backup.sparsebundle');
+    passthru('sudo -u chregu hdiutil attach -noautofsck -noverify "/Volumes/My Book II/backup.sparsebundle"');
 } else if (file_exists("/Volumes/share/backupe.sparsebundle")) {
     passthru('sudo -u chregu hdiutil attach -noautofsck -noverify  /Volumes/share/backupe.sparsebundle ');
 } else {

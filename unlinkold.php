@@ -5,14 +5,15 @@ include_once ("tmcli.php");
 
 $now = time();
 $day = $now - 24 * 3600;
-$week = $now - 24 * 3600 * 7;
-$month = $now - 24 * 3600 * 28;
+$week = $now - 24 * 3600 * 7 * 2;
+$month = $now - 24 * 3600 * 28 * 2;
 $dirs = array();
 
 $keep = array();
 $del = array();
 $tm = new tmcli($outdir);
 $inProgressData = $tm->getCurrentInProgressData();
+$lastDir = $tm->getLastDir();
 $inProgressDir = realpath($outdir."/".$inProgressData['dir']);
 foreach (new DirectoryIterator($outdir) as $fileInfo) {
     if ($fileInfo->isDot()) {
@@ -26,6 +27,7 @@ foreach (new DirectoryIterator($outdir) as $fileInfo) {
             }
             continue;
         }
+       
         $d = new DateTime();
         list($year, $month, $da, $time) = explode("-", $name, 4);
         $d->setDate($year, $month, $da);
@@ -37,7 +39,9 @@ foreach (new DirectoryIterator($outdir) as $fileInfo) {
 ksort($dirs);
 foreach ($dirs as $dir => $date) {
     $t = $date->format("U");
-    if ($t < $month) {
+    if ($dir == $lastDir) {
+      $m = null;
+    } else if ($t < $month) {
         $m = "M" . floor($date->format("W") / 4);
 
     } else if ($t < $week) {
