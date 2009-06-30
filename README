@@ -1,1 +1,15 @@
+Crontab 
+*******
+
+My crontab for root looks like
+
+1 * * * * cd /Users/chregu/bin/tm.php/  && nice -n 19 php tm.php cron 2>&1 > /tmp/backup.dat  && nice -n 19 php unlinkold.php cron 2>&1 > /tmp/unlinkold.dat
+
+put that into a text file called cron.dat and run (make sure there's nothing else in the root crontab with sudo crontab -l)
+
+sudo crontab cron.dat
+
+
+Compiling fse
+*************
 gcc -o fse fse.c -framework CoreServices
