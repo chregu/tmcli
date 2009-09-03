@@ -76,6 +76,7 @@ class tmcli {
         if (file_exists($this->bkrootdir . "/lastid.dat")) {
             return (int) file_get_contents($this->bkrootdir . "/lastid.dat");
         } else {
+            return "0";
             return false;
         }
     }

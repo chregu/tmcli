@@ -1,4 +1,6 @@
 <?php
+
+
 if (isset($argv[1]) && $argv[1] == 'cron') {
     $logg = true;
 } else {
@@ -7,22 +9,24 @@ if (isset($argv[1]) && $argv[1] == 'cron') {
 $mode = 0;
 include_once ("settings.php");
 include_once ("tmcli.php");
+chdir(dirname(__FILE__));
 
 if (file_exists($outdir)) {
     print "$outdir already mounted\n";
 } else if (file_exists("/Volumes/My Book II/backup.sparsebundle")) {
-    passthru('sudo -u chregu hdiutil attach -noautofsck -noverify "/Volumes/My Book II/backup.sparsebundle"');
+    system('sudo -H -u chregu bash  mountBackup.sh "/Volumes/My Book II/backup.sparsebundle"');
 } else if (file_exists("/Volumes/share/backupe.sparsebundle")) {
-    passthru('sudo -u chregu hdiutil attach -noautofsck -noverify  /Volumes/share/backupe.sparsebundle ');
+    system('sudo -H -u chregu bash  mountBackup.sh "/Volumes/share/backupe.sparsebundle" ');
 } else {
-    die("no backup destination found");
+    print "no backup destination found";
+    exit(2);
 }
-
 
 passthru('vsdbutil -a /Volumes/backup/');
 $tm = new tmcli($outdir);
 if (!$tm->lock()) {
-    die("backup locked");
+    print "backup locked";
+    exit(1);
 }
 
 $tm->dryrun = $dryrun;
@@ -33,7 +37,6 @@ if (!$lastid) {
     $mode = 1;
     $lastid = 1;
 }
-
 $lastdir = $tm->getLastDir();
 
 $rdirs = $tm->getExcludedPathsByApple();
@@ -41,6 +44,8 @@ $rdirs2 = array();
 //excluded by apple
 
 $modifieds = $tm->getModifiedDirs();
+
+
 
 $dirs = $modifieds['dirs'];
 $lastid =  $modifieds['newlastid'];
@@ -51,7 +56,6 @@ print $lastid ."\n";
 ksort($dirs);
 $rdiffdat = "";
 foreach ($dirs as $d => $q) {
-
     $ds = explode("/", trim($d, "/"));
     if ($ds[0] == 'Volumes') {
         continue;
