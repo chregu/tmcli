@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set("Europe/Zurich");
+
 $outdir = "/Volumes/backup/pr_backup.bk/";
 $maxdir = 4;
 $dryrun = "";
