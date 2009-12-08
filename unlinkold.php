@@ -5,7 +5,7 @@ include_once ("tmcli.php");
 
 $now = time();
 $day = $now - 24 * 3600;
-$week = $now - 24 * 3600 * 7 * 2;
+$week = $now - 24 * 3600 * 14;
 $month = $now - 24 * 3600 * 28 * 2;
 $dirs = array();
 
@@ -29,8 +29,8 @@ foreach (new DirectoryIterator($outdir) as $fileInfo) {
         }
        
         $d = new DateTime();
-        list($year, $month, $da, $time) = explode("-", $name, 4);
-        $d->setDate($year, $month, $da);
+        list($year, $mon, $da, $time) = explode("-", $name, 4);
+        $d->setDate($year, $mon, $da);
         $d->setTime(substr($time, 0, 2), substr($time, 2, 2), substr($time, 4, 2));
         $dirs[$name] = $d;
     }
@@ -42,7 +42,7 @@ foreach ($dirs as $dir => $date) {
     if ($dir == $lastDir) {
       $m = null;
     } else if ($t < $month) {
-        $m = "M" . floor($date->format("W") / 4);
+        $m = "M" . floor($date->format("Ym"));
 
     } else if ($t < $week) {
         $m = "W" . $date->format("W");
@@ -60,7 +60,6 @@ foreach ($dirs as $dir => $date) {
     }
 
 }
-
 foreach ($del as $dir) {
 
     $bkdir = $outdir . $dir;
