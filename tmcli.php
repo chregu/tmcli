@@ -1,5 +1,7 @@
 <?php
 
+
+
 class tmcli {
 
     protected $bkrootdir = "/Volumes/backup/pr_backup.bk/";
@@ -148,7 +150,7 @@ class tmcli {
         }
         $cmd = $this->getRsyncCommand($this->bkdir, $this->dryrun . " --link-dest=" . $linkdir . " ");
         print $cmd . "\n";
-
+        file_put_contents($this->bkrootdir.'lastrsync.dat',$cmd);
         passthru($cmd);
 
     }
@@ -181,7 +183,7 @@ class tmcli {
         while (!$newlastid) {
             print $lastid . "\n";
             //   print "la ". $lastid ."\n";
-            $out = `./fse 1 $lastid`;
+            $out = `./fse 20 $lastid`;
             $events = explode("\n", trim($out));
 
             foreach ($events as $e) {
